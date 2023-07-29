@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<syntax name="pug">
+	<meta>
+		<name>Pug</name>
+		<type>markup</type>
+		<preferred-file-extension>pug</preferred-file-extension>
+	</meta>
+	
+	<detectors>
+		<extension priority="1.0">pug</extension>
+		<match-content lines="1" priority="0.7">^!!!</match-content>
+	</detectors>
+	
+	<comments>
+		<single>
+			<expression>//-</expression>
+		</single>
+	</comments>
+	
+	<brackets>
+		<pair open="{" close="}" />
+		<pair open="[" close="]" />
+		<pair open="(" close=")" />
+	</brackets>
+	
+	<scopes>
+		<!-- Values -->
+		<scope name="pug.value.text" spell-check="true">
+			<expression>\\.*$</expression>
+		</scope>
+		<include syntax="self" collection="strings" />
+
+		<scope name="pug.interpolation" >
+			<starts-with>
+				<expression>(?:\#\{)</expression>
+				<capture number="0" name="pug.style.selector.identifier.id" />
+			</starts-with>
+			<ends-with>
+				<expression>\}(?&lt;!\\)</expression>
+				<capture number="0" name="pug.style.selector.identifier.id" />
+			</ends-with>
+		</scope>
+
+		<!-- Expressions -->
+		<scope name="pug.expression">
+			<starts-with>
+				<expression>^\s*-</expression>
+			</starts-with>
+			<ends-with>
+				<expression>$</expression>
+			</ends-with>
+			<subsyntax name="javascript">
+				<cut-off>
+					<expression>$</expression>
+				</cut-off>
+			</subsyntax>
+		</scope>
+
+		<scope name="pug.evaluation">
+				<starts-with>
+						<expression>=(?!&gt;)</expression>
+				</starts-with>
+				<ends-with>
+						<expression>$</expression>
+				</ends-with>
+				<subsyntax name="javascript">
+					<cut-off>
+						<expression>$</expression>
+					</cut-off>
+				</subsyntax>
+		</scope>
+		
+		<!-- Tags -->
+		<scope name="pug.html">
+				<expression>^\s*(a|abbr|acronym|address|area|article|aside|audio|b|base|big|blockquote|body|br|button|canvas|caption|cite|code|col|colgroup|const|datalist|dd|del|details|dfn|dialog|div|dl|dt|em|eventsource|fieldset|figure|figcaption|footer|form|frame|frameset|(h[1-6])|head|header|hgroup|hr|html|i|iframe|img|input|ins|kbd|label|legend|let|li|link|map|mark|menu|meta|meter|nav|noframes|noscript|object|ol|optgroup|option|output|p|param|pre|progress|q|samp|script|section|select|small|span|strike|strong|style|sub|summary|sup|table|tbody|td|textarea|tfoot|th|thead|time|title|tr|tt|ul|var|video)\b</expression>
+				<capture number="1" name="pug.html.tag" />
+		</scope>
+		
+		<scope name="pug.element">
+			<starts-with>
+				<expression>^\s*(append|block|case|default|each|extends|for|if|else|include|each|until|while|unless|when|block|append|prepend)</expression>
+				<capture number="1" name="pug.element.tag.framework" />
+			</starts-with>
+			<ends-with>
+				<expression>$</expression>
+			</ends-with>
+			<subsyntax name="javascript">
+				<cut-off>
+					<expression>$</expression>
+				</cut-off>
+			</subsyntax>
+		</scope>
+
+		<scope name="pug.meta">
+			<starts-with>
+			<expression>(\w+)\s*=\s*</expression>
+			<capture number="1" name="pug.tag.attribute.name" />			
+			</starts-with>
+			<ends-with>
+				<expression>$</expression>
+			</ends-with>
+			<subsyntax name="javascript">
+			<cut-off>
+				<expression>$</expression>
+			</cut-off>
+			</subsyntax>
+		</scope>
+
+		<scope name="pug.mixin">
+			<expression>((?:mixin\s+)|\+)([\w-]+)</expression>
+			<capture number="1" name="pug.element.tag.framework" />
+			<capture number="2" name="pug.identifier.function" />
+		</scope>
+	
+		<!-- <scope name="pug.mixin.def">
+			<expression>(mixin\s+)([\w-]+)(?:(\()\s*((?:[a-zA-Z_]\w*\s*)(?:,\s*[a-zA-Z_]\w*\s*)*)(\)))?$</expression>
+			<capture number="1" name="pug.element.tag.framework" />
+			<capture number="2" name="pug.identifier.function" />
+			<capture number="4" name="pug.identifier.argument" />
+		</scope> -->
+
+		<scope name="pug.value.entity">
+			<expression>(&amp;)([a-zA-Z0-9]+|\#[0-9]+|\#x[0-9a-fA-F]+)(;)</expression>
+		</scope>
+
+		<scope name="pug.filters">
+			<expression>(:sass|:less|:js)</expression>
+			<capture number="1" name="pug.identifier.function" />
+		</scope>
+	
+		<!-- classes and IDs -->
+		<scope name="pug.selectors">
+			<expression>((?&lt;![^.][a-zA-Z])\.[\w-]+)|(\#[\w-]+)</expression>
+			<capture number="1" name="pug.style.selector.identifier.class" />
+			<capture number="2" name="pug.style.selector.identifier.id" />
+		</scope>	
+		
+		<!-- Syntax -->
+		<scope name="pug.declaration">
+			<expression>^(!!!|doctype)(\s*[a-zA-Z0-9-_]+)?</expression>
+		</scope>
+		<scope name="pug.bracket">
+			<expression>[\(\[\{\)\]\}]</expression>
+		</scope>
+		<scope name="pug.operator">
+			<expression>(\=\&gt;)</expression>
+		</scope>
+		
+		<!-- Comments -->
+		<scope name="pug.comment.single" spell-check="false">
+			<starts-with>
+				<expression>^(\s*)//-</expression>
+			</starts-with>
+			<ends-with>
+				<expression>^(?!(\1\s)|\s*$)</expression>
+			</ends-with>
+		</scope>
+	</scopes>
+
+	<collections>
+		<collection name="strings">
+			<scope name="pug.string.double-quoted">
+				<expression>"(?:[^";\\]|\\.)*(?:"|$)</expression>
+			</scope>
+			<scope name="pug.string.single-quoted">
+				<expression>'(?:[^'\\]|\\.)*(?:'|$)</expression>
+			</scope>
+			<scope name="pug.string.backtick">
+				<expression>`(?:[^`\\]|\\.)*(?:`|$)</expression>
+			</scope>
+		</collection>
+	</collections>
+	
+	<indentation>
+		<increase>
+				<expression>^\s*(([\w\#.-]+(\(.*?\))?(:\s*[\w\#.-]+(\(.*?\))?)*\.?$)|(:[a-z]\w*($|\())|(\/\/-?$)|(-\s+(if|else|while)(\s+|$))|((for|if|else if|else|each|until|while|unless|case|when|block|append|prepend)(\s+|$)))</expression>
+		</increase>
+		<decrease>
+				<expression>^\s*(- )?(else)\b.*$</expression>
+		</decrease>
+	</indentation>
+		
+</syntax>
